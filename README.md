@@ -51,11 +51,11 @@ REST (Representational State Transfer) is an architectural style for designing n
 
 ### Key Concepts in FastAPI:
 
-- **Endpoint:**
+- **Endpoint:** An endpoint is a specific URL that the API exposes. Each endpoint represents a specific function or resource that the API can handle. In FastAPI, endpoints are defined using decorators like @app.get, @app.post, etc., to define the HTTP methods they respond to.
 
-- **Basic HTTP Methods:**
+- **Basic HTTP Methods:** FastAPI, like any web framework for APIs, relies on standard HTTP methods like GET, POST, PUT, DELETE, etc., to define the operations that can be performed on the defined endpoints.
 
-- **Request and Response:**
+- **Request and Response:**  FastAPI manages incoming requests and generates responses. The request includes data sent by the client, while the response includes the data sent back by the server in reply to the reques
 
 ### Evaluation requirements
 
