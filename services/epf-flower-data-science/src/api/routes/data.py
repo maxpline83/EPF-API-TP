@@ -21,6 +21,10 @@ def preprocess_data_router():
 def train_test_split_data_router():
     return train_test_split_data()
 
+@router.get("/train_model")
+def train_model_router():
+    return train_model()[0]
+
 @router.get("/predict_model")
 def predict_model_router():
     return predict_model()
