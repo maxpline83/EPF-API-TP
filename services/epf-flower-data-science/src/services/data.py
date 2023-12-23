@@ -6,6 +6,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 import os
 from joblib import dump
 import json
+from google.cloud import firestore
 
 def download_dataset() -> MessageResponse:
     """Download the dataset from Kaggle."""
@@ -41,16 +42,16 @@ def train_model():
     X_train = data_train.drop("target", axis=1)
     y_train = data_train["target"]
 
-    model = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0, loss="log_loss", criterion="squared_error")
+    model = GradientBoostingClassifier()
     model.fit(X_train, y_train)
     
-    params_path = "src/config/"
+    params_path = "services/epf-flower-data-science/src/config/"
     os.makedirs(params_path, exist_ok=True)
-    params_file_path = os.path.join(params_path, "params.json")
+    params_file_path = os.path.join(params_path, "model_parameters.json")
     with open(params_file_path, "w") as f:
         json.dump(model.get_params(), f)
 
-    model_path = 'src/models/'
+    model_path = "services/epf-flower-data-science/src/models/"
     os.makedirs(model_path, exist_ok=True)
     model_file_path = os.path.join(model_path, "model.joblib")
     dump(model, model_file_path)
@@ -64,3 +65,29 @@ def predict_model():
     y_pred = model.predict(X_test)
     return pd.DataFrame(y_pred).to_json(orient="records")
 
+def create_firestore():
+    """Create a Firestore database."""
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/maxim/Programation/EPF/S9/API/Lab2/EPF-API-TP/services/epf-flower-data-science/src/config/credentials.json"
+    db = firestore.Client()
+    parameters_ref = db.collection('parameters').document('parameters')
+    params = json.load(open("services/epf-flower-data-science/src/config/model_parameters.json"))
+    parameters_ref.set(params)
+    return MessageResponse(message="Firestore database created")
+
+def get_data_firestore():
+    """Get the data from Firestore."""
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/maxim/Programation/EPF/S9/API/Lab2/EPF-API-TP/services/epf-flower-data-science/src/config/credentials.json"
+    db = firestore.Client()
+    parameters_ref = db.collection('parameters').document('parameters')
+    params = parameters_ref.get().to_dict()
+    return params
+
+def update_data_firestore():
+    """Update the data from Firestore."""
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/maxim/Programation/EPF/S9/API/Lab2/EPF-API-TP/services/epf-flower-data-science/src/config/credentials.json"
+    db = firestore.Client()
+    parameters_ref = db.collection('parameters').document('parameters')
+    params = parameters_ref.get().to_dict()
+    params["n_estimators"] = 100
+    parameters_ref.set(params)
+    return MessageResponse(message="Firestore database updated")
